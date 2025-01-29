@@ -4,20 +4,20 @@ class ProcessoSeletivo:
         self.idade = int(idade)
         self.sexo = sexo
         self.pretSalarial = int(pretSalarial)   
-        self.função = função
-        self.aprovado = ""
+        self.funcao = função
+        self.aprovado = False
 
-    def aprovado(self): 
+    def aprovar(self): 
             self.aprovado = True
        
     
-    def reprovado(self):
+    def reprovar(self):
             self.aprovado = False
         
     
     def __str__(self):
-        status = "Aprovado" if self.aprovado else "Reprovado"
-        return f"{self.nome} - {self.função} - [{status}]"
+        status_candidato = "Aprovado" if self.aprovado else "Reprovado"
+        return f"{self.nome} - {self.função} - [{status_candidato}]"
     
 class Funcionario:
     def __init__(self, nome, idade, sexo, salario, funcao):
@@ -41,46 +41,44 @@ class Funcionario:
         return False
     
     def __str__(self):
-        status_candidato = "Admitido" if self.admitido else "Demitido"
-        return f"{self.nome} - {self.funcao} - [{status_candidato}]"
+        status_funcionario = "Admitido" if self.admitido else "Demitido"
+        return f"{self.nome} - {self.funcao} - [{status_funcionario}]"
     
 class RecursosHumanos:
     def __init__(self):
         self.funcionarios = []
         self.candidatos = []
 
-    def adicionar_candidatos(self, candidato):
+    def adicionar_candidato(self, candidato):
         self.candidatos.append(candidato)
         
     def listar_candidatos(self):
         if not self.candidatos:
             print("Nenhum candidato cadastrado")
-        for i, candidatos in enumerate(self.candidatos, 1):
-           print(f'{i}. {candidatos}')
+        for i, candidato in enumerate(self.candidatos, 1):
+           print(f'{i}. {candidato}')
 
     def aprovar_candidato(self, nome):
         for candidato in self.candidatos:
             if candidato.nome.lower() == nome.lower():
-                if candidato.aprovado():
-                    print(f"O candidato '{nome}' foi aprovado.")
-                    return True
-                else:
-                    print(f"O candidato '{nome}' não foi encontrado.")
-                    return
+                candidato.aprovar()
+                print(f"O candidato '{nome}' foi aprovado.")
+                return True
         print(f"O candidato '{nome}' não foi encontrado.")
+        return False
+      
 
     def reprovar_candidato(self, nome):
         for candidato in self.candidatos:
             if candidato.nome.lower() == nome.lower():
-                if candidato.reprovado():
-                    print(f"O candidato '{nome}' foi reprovado.")
-                    return False
-                else:
-                    print(f"O candidato '{nome}' não foi encontrado.")
-                    return
+                candidato.reprovar()
+                print(f"O candidato '{nome}' foi reprovado.")
+                return True
         print(f"O candidato '{nome}' não foi encontrado.")
+        return False
+     
 
-    def adicionar_funcionarios(self, funcionario):
+    def adicionar_funcionario(self, funcionario):
         self.funcionarios.append(funcionario)
 
     def listar_funcionarios(self):
@@ -89,30 +87,33 @@ class RecursosHumanos:
         for i, funcionario in enumerate(self.funcionarios, 1):
             print(f'{i}. {funcionario}')
 
+ 
 
     def demitir_funcionarios(self, nome):
         for funcionario in self.funcionarios:
             if funcionario.nome.lower() == nome.lower():
-                if funcionario.demitido():
+                if funcionario.demitir():
                     print(f"O funcionario '{nome}' foi demitido.")
-                    return
+                    return True
                 else:
                     print(f"O funcionario '{nome}' não foi encontrado.")
-                    return
-        print(f"O funcionario '{nome}' não foi encontrado.")
-    
-    def admitir_funcionarios(self, nome):
-        for funcionario in self.funcionarios:
-            if funcionario.nome.lower() == nome.lower():
-                if funcionario.admitir():
-                    print(f"O funcionario '{nome}' foi admitido.")
-                    return True
-                else: 
-                    print(f"O funcionario '{nome}' já está admitido.")
-                    return  False
+                    return False
         print(f"O funcionario '{nome}' não foi encontrado.")
         return False
     
+    def admitir_funcionarios(self, nome):
+        for candidato in self.candidatos:
+            if candidato.nome.lower() == nome.lower():
+                if candidato.aprovado:
+                    funcionaro = Funcionario(candidato.nome, candidato.idade, candidato.sexo, candidato.pretSalarial, candidato.funcao)
+                    self.adicionar_funcionario(funcionaro)
+                    print(f"O funcionario '{nome}' foi admitido.")
+                    return True
+                else:   
+                    print(f"O candidato '{nome}' precisar ser aprovado no processo seletivo.")
+                    return False
+        print(f"O candidato '{nome}' não foi encontrado.")
+        return False
 
 def menu_candidato():
     print("Menu")
@@ -140,6 +141,7 @@ def main():
     while True:
         menu_candidato()
         escolha = input("Escolha uma opção: ")
+
         if escolha == '1':
             menu_candidato1()
             escolha_candidato = input("Escolha uma opção: ")
@@ -154,45 +156,37 @@ def main():
                 pretSalarial = input("Pretensão Salarial:")
                 função = input("Função:")
                 candidato = ProcessoSeletivo(nome, idade, sexo, pretSalarial, função)  
-                rh.adicionar_candidatos(candidato)
-            
-                if candidato.idade < 18 or candidato.pretSalarial >= 1000:
-                    print(f"O candidato {nome} foi reprovado no processo seletivo por ser menor de idade.")
-                else :
-                    rh.adicionar_candidatos(candidato)
-                    print(f"O candidato {nome} está sob análise do RH.")
+                rh.adicionar_candidato(candidato)
+                print("Candidato adicionado com sucesso!")
+        
                   
 
-            if escolha_candidato == '2':
+            elif escolha_candidato == '2':
                 print("Lista de candidatos")
                 rh.listar_candidatos()
 
             elif escolha_candidato == '3':      
                 nome = input("Digite o nome do candidato: ")
-                if nome not in rh.candidatos:
-                    print(f"O candidato {nome} não foi encontrado.")
-                else:
-                    rh.aprovar_candidato(nome)
+                rh.aprovar_candidato(nome)
             
             elif escolha_candidato == '4':
                 nome = input("Digite o nome do candidato: ")
                 rh.reprovar_candidato(nome)
-                
+            
+            else:
+                print("Opção inválida")
+     
 
-        
+            
         if escolha == '2':
             funcionarios_menu()
             escolha_funcionario = input("Escolha uma opção: ")
 
 
             if escolha_funcionario == '1':
-                nome = input("Nome:")
-                idade = input("Idade:") 
-                sexo = input("Sexo:")   
-                salario = input("Salario:") 
-                funcao = input("Função:")   
-                funcionario = Funcionario(nome, idade, sexo, salario, funcao)
-    
+                print("Detalhes do funcionario")
+                nome = input("Digite o nome do funcionario:")
+               
           
 
             elif escolha_funcionario == '2':    
