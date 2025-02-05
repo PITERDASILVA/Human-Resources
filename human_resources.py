@@ -3,7 +3,7 @@ class ProcessoSeletivo:
         self.nome = nome
         self.idade = int(idade)
         self.sexo = sexo
-        self.pretSalarial = int(pretSalarial)   
+        self.pretSalarial = float(pretSalarial)   
         self.funcao = função
         self.aprovado = False
 
@@ -17,14 +17,14 @@ class ProcessoSeletivo:
     
     def __str__(self):
         status_candidato = "Aprovado" if self.aprovado else "Reprovado"
-        return (f"[{status_candidato}] - {self.nome} - {self.funcao}")
+        return (f"Nome: {self.nome} - Salário: {self.pretSalarial:.3f} - Função: {self.funcao}")
     
 class Funcionario:
     def __init__(self, nome, idade, sexo, salario, funcao):
         self.nome = nome
         self.idade = int(idade)
         self.sexo = sexo
-        self.salario = int(salario)
+        self.salario = float(salario)
         self.funcao = funcao 
         self.admitido = False
 
@@ -34,7 +34,7 @@ class Funcionario:
             return True
         return False
     
-    def demitido(self):
+    def demitir(self):
         if self.admitido:
             self.admitido = False
             return True
@@ -47,7 +47,7 @@ class Funcionario:
                 f"Idade: {self.idade}\n"
                 f"Sexo: {self.sexo}\n"
                 f"Função: {self.funcao}\n"
-                f"Salário: {self.salario}")
+                f"Salário: {self.salario:.3f}")
     
 class RecursosHumanos:
     def __init__(self):
@@ -57,11 +57,18 @@ class RecursosHumanos:
     def adicionar_candidato(self, candidato):
         self.candidatos.append(candidato)
         
-    def listar_candidatos(self):
-        if not self.candidatos:
-            print("Nenhum candidato cadastrado")
-        for i, candidato in enumerate(self.candidatos, 1):
-           print(f'{i}. {candidato}')
+    def listar_candidatos(self, nome=None):
+        if nome:
+            encontrados = [candidato for candidato in self.candidatos if candidato.nome.lower() == nome.lower()]
+            if not encontrados:
+                print("Nenhum candidato cadastrado.")
+            for i, candidato in enumerate(encontrados, 1):
+                print(f'{i} - {candidato}\n')
+        else:    
+            if not self.candidatos:
+                print("Nenhum candidato cadastrado")
+            for i, candidato in enumerate(self.candidatos, 1):
+                print(f'{i}. {candidato}')
 
     def aprovar_candidato(self, nome):
         for candidato in self.candidatos:
@@ -82,17 +89,16 @@ class RecursosHumanos:
         print(f"O candidato '{nome}' não foi encontrado.")
         return False
      
-
     def adicionar_funcionario(self, funcionario):
         self.funcionarios.append(funcionario)
     
     
     def listar_funcionarios(self, nome):
-      encontrados = [funcionario for funcionario in self.funcionarios  if funcionario.nome.lower() == nome.lower()]
-      if not encontrados:
+        encontrados = [funcionario for funcionario in self.funcionarios  if funcionario.nome.lower() == nome.lower()]
+        if not encontrados:
             print("Nenhum funcionario cadastrado.")
-      for i, funcionario in enumerate(encontrados, 1):
-            print(f'{funcionario}\n')
+        for i, funcionario in enumerate(encontrados, 1):
+            print(f'{i} - {funcionario}\n')
 
     def demitir_funcionarios(self, nome):
         for funcionario in self.funcionarios:
@@ -101,18 +107,31 @@ class RecursosHumanos:
                     print(f"O funcionario '{nome}' foi demitido.")
                     return True
                 else:
-                    print(f"O funcionario '{nome}' não foi encontrado.")
+                    print(f"O funcionario '{nome}' já está demitido.")
                     return False
         print(f"O funcionario '{nome}' não foi encontrado.")
         return False
     
     def admitir_funcionarios(self, nome):
+        for funcionario in self.funcionarios:
+            if funcionario.nome.lower() == nome.lower():
+                print(f"O funcionario '{nome}' já está admitido.")
+                return False
+
         for candidato in self.candidatos:
             if candidato.nome.lower() == nome.lower():
                 if candidato.aprovado:
-                    funcionaro = Funcionario(candidato.nome, candidato.idade, candidato.sexo, candidato.pretSalarial, candidato.funcao)
-                    funcionaro.admitir() #Define a admição como true
-                    self.adicionar_funcionario(funcionaro)
+                    self.listar_candidatos(nome)
+                    modificacao = input("Deseja modificar o salário do funcionário? (s/n): ")
+                    if modificacao.lower() == 's':
+                        novo_salario = input("Digite o novo salário: ")
+                        candidato.pretSalarial = float(novo_salario)
+
+
+                    funcionario = Funcionario(candidato.nome, candidato.idade, candidato.sexo, candidato.pretSalarial, candidato.funcao)
+                    funcionario.admitir() #Define a admição como true
+                    self.adicionar_funcionario(funcionario)
+                    self.candidatos.remove(candidato)
                     print(f"O funcionario '{nome}' foi admitido.")
                     return True
                 else:   
@@ -157,9 +176,9 @@ def main():
                 print("---------------------------")
                 nome = input("Nome:")
                 idade = input("Idade:")
-                sexo = input("Sexo:")
-                pretSalarial = input("Pretensão Salarial:")
+                sexo = input("Sexo:") 
                 função = input("Função:")
+                pretSalarial = input("Pretensão Salarial:")
                 candidato = ProcessoSeletivo(nome, idade, sexo, pretSalarial, função)  
                 rh.adicionar_candidato(candidato)
                 print("Candidato adicionado com sucesso!")
@@ -170,9 +189,6 @@ def main():
                 print("Lista de candidatos")
                 rh.listar_candidatos()
                 
-                
-                
-
             elif escolha_candidato == '3':      
                 nome = input("Digite o nome do candidato: ")
                 rh.aprovar_candidato(nome)
@@ -199,8 +215,6 @@ def main():
                 rh.demitir_funcionarios(nome)  
 
             elif escolha_funcionario == '3':
-                print("Detalhes de funcionarios")  
-                print("---------------------------") 
                 nome = input("Nome do Funcionário: ")  
                 rh.listar_funcionarios(nome)
 
